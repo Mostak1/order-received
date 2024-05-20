@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Received;
+use App\Models\ReceivedDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -19,67 +20,87 @@ class ReceivedController extends Controller
     public function create()
     {
         $products = Product::all();
-        return view('receiveds.create',compact('products'));
+        return view('receiveds.create', compact('products'));
     }
 
     // Store a newly created received item in the database
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|integer',
-            'status' => 'required|string|max:255',
-        ]);
+        DB::beginTransaction();
+        try {
+            $order = new Received();
+            $order->quantity = $request->totalItems;
+            $order->status = $request->status;
+            $order->received_time = $request->date;
+            $order->save();
 
-        Received::create($validatedData);
+            foreach ($request->items as $item) {
+                $details = new ReceivedDetail();
+                $details->received_id = $order->id;
+                $details->product_id = $item['id'];
+                $details->quantity = $item['quantity'];
+                $details->status = $request->status;
+                $details->received_time = $request->date;
+                $details->save();
+            }
 
-        return redirect()->back()->with('success', 'Received item created successfully.');
+            DB::commit();
+            return response()->json(['success' => true, 'data' => $order]);
+        } catch (Exception $e) {
+            DB::rollback();
+            Log::error('Order received failed: ' . $e->getMessage()); // Log the error
+            return response()->json(['success' => false, 'error' => 'Order could not be received properly. Please try again. ' . $e->getMessage()]);
+        }
     }
 
     // Display the specified received item
     public function show(Received $received)
     {
-        return view('receiveds.show', compact('received'));
+        $details = ReceivedDetail::with('product')->where('received_id', $received->id)->get();
+        return view('receiveds.show', compact('received', 'details'));
     }
 
     // Show the form for editing the specified received item
     public function edit(Received $received)
     {
         $products = Product::all();
-        return view('receiveds.edit', compact('received', 'products'));
+        $details = ReceivedDetail::with('product')->where('received_id', $received->id)->get();
+        return view('receiveds.edit', compact('received', 'products', 'details'));
     }
     // Update the specified received item in the database
-    public function update(Request $request, Received $received)
+    public function update(Request $request, $id)
     {
-        // Validate the incoming request data
-        // $validatedData = $request->validate([
-        //     'product_id' => 'sometimes|integer',
-        //     'quantity' => 'sometimes|integer',
-        //     'status' => 'sometimes|string|max:255',
-        //     'received_time' => 'sometimes|date',
-        // ]);
+        DB::beginTransaction();
         try {
-            // Use DB transaction to ensure data consistency
-            DB::transaction(function () use ($received, $request) {
-                // Update each field individually if present in the request
-                if ($request->has('product_id')) {
-                    $received->product_id = $request->product_id;
-                }
-                if ($request->has('quantity')) {
-                    $received->quantity = $request->quantity;
-                }
-                if ($request->has('status')) {
-                    $received->status = $request->status;
-                }
-                if ($request->has('received_time')) {
-                    $received->received_time = $request->received_time;
-                }
-                $received->save();
-            });
-            return redirect()->back()->with('success', 'Received updated successfully.');
-        } catch (\Exception $e) {
-            // Handle the error and redirect back with an error message
-            return redirect()->back()->withErrors(['error' => 'An error occurred while updating the Received. Please try again.'])->withInput();
+            // Find the order
+            $received = Received::findOrFail($id);
+
+            // Update received details
+            $received->quantity = $request->totalItems;
+            $received->status = $request->status;
+            $received->received_time = $request->date;
+            $received->save();
+
+            // Clear existing received details
+            ReceivedDetail::where('received_id', $id)->delete();
+
+            // Add updated received details
+            foreach ($request->items as $item) {
+                $details = new ReceivedDetail();
+                $details->received_id = $received->id;
+                $details->product_id = $item['pid'];
+                $details->quantity = $item['quantity'];
+                $details->status = $request->status;
+                $details->received_time = $request->date;
+                $details->save();
+            }
+
+            DB::commit();
+            return response()->json(['success' => true, 'data' => $received]);
+        } catch (Exception $e) {
+            DB::rollback();
+            Log::error('received update failed: ' . $e->getMessage()); // Log the error
+            return response()->json(['success' => false, 'error' => 'received could not be updated properly. Please try again. ' . $e->getMessage()]);
         }
     }
     // Remove the specified received item from the database

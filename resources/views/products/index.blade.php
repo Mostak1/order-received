@@ -19,12 +19,13 @@
             <table class="min-w-full bg-white dataTable" id="dataTable">
                 <thead class="bg-gray-800 text-white">
                     <tr>
-                        <th class="tablebtn" colspan="6"></th>
+                        <th class="tablebtn" colspan="7"></th>
 
                     </tr>
                     <tr>
                         <th class=" py-2">SL</th>
                         <th class="w-1/6 py-2">Name</th>
+                        <th class=" py-2">Price</th>
                         <th class="w-2/6 py-2">Orders</th>
                         <th class="w-2/6 py-2">Received</th>
                         <th class=" py-2">Remaining Orders</th>
@@ -36,6 +37,7 @@
                         <tr>
                             <td class="border px-4 py-2">{{ $product->id }}</td>
                             <td class="border px-4 py-2">{{ $product->name }}</td>
+                            <td class="border px-4 py-2">{{ $product->price }}</td>
                             <td class="border px-4 py-2">       
                                 @foreach ($product->orders as $item)
                                 <li class="flex mb-1">
@@ -59,7 +61,7 @@
                             <td class="border px-4 py-2">       
                                 @foreach ($product->received as $item)
                                 <li class="flex mb-1">
-                                    <span>{{ $item->status }}</span>  => 
+                                    <span>{{ $item->status }}</span>  = 
                                     <span>{{ $item->quantity }}</span>
                                     <a href="{{ route('receiveds.edit', $item->id) }}"
                                         class="bg-yellow-500 hover:bg-yellow-700 text-white mx-1 font-bold p-1 rounded"><i class="fa-regular fa-pen-to-square"></i></a>

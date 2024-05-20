@@ -24,7 +24,6 @@
                     </tr>
                     <tr>
                         <th class="w-1/5 py-2">SL</th>
-                        <th class="w-1/5 py-2">Product ID</th>
                         <th class="w-1/5 py-2">Quantity</th>
                         <th class="w-1/5 py-2">Status</th>
                         <th class="w-1/5 py-2">Actions</th>
@@ -34,7 +33,6 @@
                     @foreach ($orders as $order)
                         <tr>
                             <td class="border px-4 py-2">{{ $order->id }}</td>
-                            <td class="border px-4 py-2">{{ $order->product->name }}</td>
                             <td class="border px-4 py-2">{{ $order->quantity }}</td>
                             <td class="border px-4 py-2">{{ $order->status }}</td>
                             <td class="border px-4 py-2 ">

@@ -5,7 +5,7 @@
     <select  name="product_id" id="product_id"
         class="select2 shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
         @foreach ($products as $product)
-            <option value="{{ $product->id }}" {{ ($received->product_id ?? old('product_id')) == $product->id ? 'selected' : '' }}>{{ $product->name }}</option>
+            <option data-pname="{{ $product->name }}" data-id="{{ $product->id }}" value="{{ $product->id }}" {{ ($received->product_id ?? old('product_id')) == $product->id ? 'selected' : '' }} >{{ $product->name }}</option>
         @endforeach
     </select>
     @error('product_id')

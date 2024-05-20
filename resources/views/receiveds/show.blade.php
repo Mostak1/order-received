@@ -7,29 +7,13 @@
 
     <div class="container mx-auto mt-5">
         <div class="w-3/4 bg-white shadow-md rounded mx-auto px-8 pt-6 pb-8 mb-4">
-            <h1 class="text-2xl font-bold mb-4">Create Order</h1>
-            @csrf
-            {{-- @include('orders.form') --}}
-            <input type="text" hidden id="orderId" value="{{$order->id}}">
+            <span class="text-2xl font-bold mb-4">Order Details</span>
+            <a href="{{ route('receiveds.edit', $received->id) }}"
+                class="bg-yellow-500  hover:bg-yellow-700 mx-1 text-white font-bold py-1 px-2 rounded"><i class="fa-regular fa-pen-to-square"></i></a>
+            <input type="text" id="orderId" hidden value="{{ $received->id }}">
             <div class="flex">
                 <div class="w-2/3 me-3">
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="product_id">
-                            Product
-                        </label>
-                        <select name="product_id" id="product_id"
-                            class="select2 shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                            @foreach ($products as $product)
-                                <option data-pname="{{ $product->name }}" data-id="{{ $product->id }}"
-                                    value="{{ $product->id }}"
-                                    {{ ($received->product_id ?? old('product_id')) == $product->id ? 'selected' : '' }}>
-                                    {{ $product->name }}</option>
-                            @endforeach
-                        </select>
-                        @error('product_id')
-                            <p class="text-red-500 text-xs italic">{{ $message }}</p>
-                        @enderror
-                    </div>
+
                     <div class="mb-4">
                         <div class="flex">
                             <div class="w-2/3 name">Product Name</div>
@@ -38,13 +22,12 @@
                         <hr>
                         <div id="selectedProducts" class="mt-2">
                             @foreach ($details as $detail)
-                                <div class="flex mb-2 order-item" data-id="{{$detail->product_id}}">
-                                    <div class="w-2/3 name">{{$detail->product->name}}<input type="number" class="pid"
+                                <div class="flex mb-2 order-item" data-id="{{ $detail->product_id }}">
+                                    <div class="w-2/3 name">{{ $detail->product->name }}<input type="number" class="pid"
                                             style="width:50px" hidden value="${productId}" min="1"></div>
-                                    <div class="w-1/3"><input type="number" class="pquantity" style="width:100px"
-                                            value="{{$detail->quantity}}" min="1"></div>
-                                    <button type="button"
-                                        class="inline-block px-2 py-1 text-sm font-semibold leading-none text-white bg-red-500 rounded hover:bg-red-600 remove-product">Remove</button>
+                                    <div class="w-1/3">
+                                        {{ $detail->quantity }}
+                                    </div>
                                 </div>
                             @endforeach
                         </div>
@@ -55,40 +38,20 @@
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="status">
                             Order Name
                         </label>
-                        <input
-                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                            id="status" name="status" type="text" value="{{ $order->status ?? '' }}"
-                            placeholder="Order Name">
-                        @error('status')
-                            <p class="text-red-500 text-xs italic">{{ $message }}</p>
-                        @enderror
+                        <p class=" italic">{{ $received->status ?? '' }}</p>
                     </div>
                     <div class="mb-4">
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="orders_time">
                             Order Date
                         </label>
-                        @php
-                            $currentDate = date('Y-m-d');
-                        @endphp
-                        <input
-                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                            id="orders_time" name="orders_time"
-                            value="{{ $order->orders_time ?? old('orders_time') ? \Carbon\Carbon::parse($order->orders_time)->format('Y-m-d') : now()->format('Y-m-d') }}"
-                            type="date" placeholder="Quantity">
-                        @error('quantity')
-                            <p class="text-red-500 text-xs italic">{{ $message }}</p>
-                        @enderror
+                        
+                        <p class=" italic">{{ $received->orders_time }}</p>
+                       
                     </div>
                 </div>
             </div>
 
-            <div class="flex items-center justify-between">
-                <button id="submitOrder"
-                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                    type="submit">
-                    Create Order
-                </button>
-            </div>
+
 
         </div>
     </div>
@@ -156,7 +119,7 @@
                     url: '{{ url('orders') }}/' + id,
                     type: 'PUT',
                     data: {
-                        
+
                         items: items,
                         status: status,
                         date: date,
@@ -166,7 +129,7 @@
                         if (response.success) {
                             console.log(response.data);
                             Swal.fire({
-                                icon:'success',
+                                icon: 'success',
                                 title: 'Success',
                                 text: 'Order Updated Successfully.',
                             });

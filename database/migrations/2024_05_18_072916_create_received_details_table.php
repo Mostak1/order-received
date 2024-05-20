@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('receiveds', function (Blueprint $table) {
+        Schema::create('received_details', function (Blueprint $table) {
             $table->id();
+            $table->bigInteger('received_id')->unsigned();
+            $table->foreign('received_id')->references('id')->on('receiveds')->onDelete('cascade');
+            $table->bigInteger('product_id')->unsigned();
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
             $table->integer('quantity');
             $table->string('status');
             $table->timestamp('received_time')->nullable();
@@ -26,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('receiveds');
+        Schema::dropIfExists('received_details');
     }
 };

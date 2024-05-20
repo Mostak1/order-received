@@ -9,8 +9,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Received extends Model
 {
     use HasFactory,SoftDeletes;
-    protected $fillable=['product_id', 'quantity', 'status'];
-    public function product(){
-        return $this->belongsTo(Product::class);
-    }
+    protected $fillable=['quantity', 'status'];
+   
 }

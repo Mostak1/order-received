@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\OrderDetail;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -14,80 +15,132 @@ class OrderController extends Controller
      */
     public function index()
     {
-        $orders = Order::with('product')->get();
+        $orders = Order::get();
         return view('orders.index', compact('orders'));
     }
-
     // Show the form for creating a new order
     public function create()
     {
         $products = Product::all();
         return view('orders.create', compact('products'));
     }
-
     // Store a newly created order in the database
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'product_id' => 'required|integer',
-            'quantity' => 'required|integer',
-            'status' => 'string|max:255',
-            'orders_time' => 'required',
-        ]);
-        Order::create($validatedData);
-        return redirect()->route('orders.index')->with('success', 'Order created successfully.');
+        DB::beginTransaction();
+        try {
+            $order = new Order();
+            $order->quantity = $request->totalItems;
+            $order->status = $request->status;
+            $order->total = $request->orderTotal;
+            $order->orders_time = $request->date;
+            $order->save();
+            foreach ($request->items as $item) {
+                $details = new OrderDetail();
+                $details->order_id = $order->id;
+                $details->product_id = $item['id'];
+                $details->quantity = $item['quantity'];
+                $details->price = $item['price'];
+                $details->total = $item['quantity']* $item['price'];
+                $details->status = $request->status;
+                $details->orders_time = $request->date;
+                $details->save();
+            }
+            DB::commit();
+            return response()->json(['success' => true, 'data' => $order]);
+        } catch (Exception $e) {
+            DB::rollback();
+            Log::error('Order submission failed: ' . $e->getMessage()); // Log the error
+            return response()->json(['success' => false, 'error' => 'Order could not be submitted properly. Please try again. ' . $e->getMessage()]);
+        }
     }
-
     // Display the specified order
     public function show(Order $order)
     {
-        return view('orders.show', compact('order'));
+        $details = OrderDetail::with('product')->where('order_id', $order->id)->get();
+        return view('orders.show', compact('order', 'details'));
     }
 
     // Show the form for editing the specified order
     public function edit(Order $order)
     {
         $products = Product::all();
-        return view('orders.edit', compact('order','products'));
+        $details = OrderDetail::with('product')->where('order_id', $order->id)->get();
+        return view('orders.edit', compact('order', 'products', 'details'));
     }
 
     // Update the specified order in the database
-    public function update(Request $request, Order $order)
+    public function update(Request $request, $id)
     {
-        // Validate the incoming request data
-        $validatedData = $request->validate([
-            'product_id' => 'sometimes|integer',
-            'quantity' => 'sometimes|integer',
-            'status' => 'sometimes|string|max:255',
-            'orders_time' => 'sometimes|date',
-        ]);
-    
+        DB::beginTransaction();
         try {
-            // Use DB transaction to ensure data consistency
-            DB::transaction(function () use ($order, $validatedData, $request) {
-                // Update each field individually if present in the request
-                if ($request->has('product_id')) {
-                    $order->product_id = $request->product_id;
-                }
-                if ($request->has('quantity')) {
-                    $order->quantity = $request->quantity;
-                }
-                if ($request->has('status')) {
-                    $order->status = $request->status;
-                }
-                if ($request->has('orders_time')) {
-                    $order->orders_time = $request->orders_time;
-                }
-                $order->save();
-            });
-    
-            return redirect()->route('orders.index')->with('success', 'Order updated successfully.');
-    
-        } catch (\Exception $e) {
-            // Handle the error and redirect back with an error message
-            return redirect()->back()->withErrors(['error' => 'An error occurred while updating the order. Please try again.'])->withInput();
+            // Find the order
+            $order = Order::findOrFail($id);
+
+            // Update order details
+            $order->quantity = $request->totalItems;
+            $order->status = $request->status;
+            $order->orders_time = $request->date;
+            $order->save();
+
+            // Clear existing order details
+            OrderDetail::where('order_id', $id)->delete();
+
+            // Add updated order details
+            foreach ($request->items as $item) {
+                $details = new OrderDetail();
+                $details->order_id = $order->id;
+                $details->product_id = $item['pid'];
+                $details->quantity = $item['quantity'];
+                $details->status = $request->status;
+                $details->orders_time = $request->date;
+                $details->save();
+            }
+
+            DB::commit();
+            return response()->json(['success' => true, 'data' => $order]);
+        } catch (Exception $e) {
+            DB::rollback();
+            Log::error('Order update failed: ' . $e->getMessage()); // Log the error
+            return response()->json(['success' => false, 'error' => 'Order could not be updated properly. Please try again. ' . $e->getMessage()]);
         }
     }
+    // public function update(Request $request, Order $order)
+    // {
+    //     // Validate the incoming request data
+    //     $validatedData = $request->validate([
+    //         'product_id' => 'sometimes|integer',
+    //         'quantity' => 'sometimes|integer',
+    //         'status' => 'sometimes|string|max:255',
+    //         'orders_time' => 'sometimes|date',
+    //     ]);
+
+    //     try {
+    //         // Use DB transaction to ensure data consistency
+    //         DB::transaction(function () use ($order, $validatedData, $request) {
+    //             // Update each field individually if present in the request
+    //             if ($request->has('product_id')) {
+    //                 $order->product_id = $request->product_id;
+    //             }
+    //             if ($request->has('quantity')) {
+    //                 $order->quantity = $request->quantity;
+    //             }
+    //             if ($request->has('status')) {
+    //                 $order->status = $request->status;
+    //             }
+    //             if ($request->has('orders_time')) {
+    //                 $order->orders_time = $request->orders_time;
+    //             }
+    //             $order->save();
+    //         });
+
+    //         return redirect()->route('orders.index')->with('success', 'Order updated successfully.');
+
+    //     } catch (\Exception $e) {
+    //         // Handle the error and redirect back with an error message
+    //         return redirect()->back()->withErrors(['error' => 'An error occurred while updating the order. Please try again.'])->withInput();
+    //     }
+    // }
 
     // Remove the specified order from the database
     public function destroy(Order $order)

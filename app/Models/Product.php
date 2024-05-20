@@ -11,16 +11,17 @@ class Product extends Model
     use HasFactory, SoftDeletes;
     protected $fillable = [
         'name',
-        'details'
+        'details',
+        'price',
     ];
     public function orders()
     {
-        return $this->hasMany(Order::class);
+        return $this->hasMany(OrderDetail::class);
     }
 
     public function received()
     {
-        return $this->hasMany(Received::class);
+        return $this->hasMany(ReceivedDetail::class);
     }
 
     public function getTotalOrderedAttribute()

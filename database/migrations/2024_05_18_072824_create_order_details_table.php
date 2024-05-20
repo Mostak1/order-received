@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('orders', function (Blueprint $table) {
+        Schema::create('order_details', function (Blueprint $table) {
             $table->id();
+            $table->bigInteger('order_id')->unsigned();
+            $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
+            $table->bigInteger('product_id')->unsigned();
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
             $table->integer('quantity');
             $table->string('status');
             $table->timestamp('orders_time')->nullable();
@@ -22,10 +26,10 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations. UPDATE `orders` SET `orders_time`=STR_TO_DATE('4/3/2024', '%m/%d/%Y') WHERE `status`='work order 5';
+     * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('orders');
+        Schema::dropIfExists('order_details');
     }
 };
