@@ -19,22 +19,24 @@
             <table class="min-w-full bg-white dataTable" id="dataTable">
                 <thead class="bg-gray-800 text-white">
                     <tr>
-                        <th class="tablebtn" colspan="5"></th>
+                        <th class="tablebtn" colspan="6"></th>
                         
                     </tr>
                     <tr>
-                        <th class="w-1/5 py-2">SL</th>
+                        <th class=" py-2">SL</th>
                         <th class="w-1/5 py-2">Quantity</th>
                         <th class="w-1/5 py-2">Status</th>
+                        <th class="w-1/5 py-2">Total</th>
                         <th class="w-1/5 py-2">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="text-gray-700">
                     @foreach ($orders as $order)
                         <tr>
-                            <td class="border px-4 py-2">{{ $order->id }}</td>
+                            <td class="border px-4 py-2">{{ $loop->index +1 }}</td>
                             <td class="border px-4 py-2">{{ $order->quantity }}</td>
                             <td class="border px-4 py-2">{{ $order->status }}</td>
+                            <td class="border px-4 py-2">{{ $order->total }}</td>
                             <td class="border px-4 py-2 ">
                                 <a href="{{ route('orders.show', $order->id) }}"
                                     class="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 rounded">View</a>

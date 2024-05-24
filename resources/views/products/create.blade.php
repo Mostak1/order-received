@@ -15,7 +15,6 @@
             </div>
         @endif
         <div class="w-1/4 mx-auto">
-
             <form action="{{ route('products.store') }}" method="POST">
                 @csrf
                 <div class="mb-4">
@@ -28,6 +27,12 @@
                     <label for="details" class="block text-gray-700 font-bold mb-2">Details:</label>
                     <textarea name="details" id="details"
                         class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">{{ old('details') }}</textarea>
+                </div>
+                <div class="mb-4">
+                    <label for="price" class="block text-gray-700 font-bold mb-2">Price:</label>
+                    <input type="text" name="price" id="price"
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        value="{{ old('price') }}">
                 </div>
                 <div>
                     <button type="submit"

@@ -10,7 +10,7 @@
             <h1 class="text-2xl font-bold mb-4">Create Order</h1>
             @csrf
             {{-- @include('orders.form') --}}
-            <input type="text" hidden id="orderId" value="{{$order->id}}">
+            <input type="text" hidden id="orderId" value="{{ $order->id }}">
             <div class="flex">
                 <div class="w-2/3 me-3">
                     <div class="mb-4">
@@ -20,29 +20,34 @@
                         <select name="product_id" id="product_id"
                             class="select2 shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                             @foreach ($products as $product)
-                                <option data-pname="{{ $product->name }}" data-id="{{ $product->id }}"
+                                <option data-pname="{{ $product->name }}" data-price="{{ $product->price }}" data-id="{{ $product->id }}"
                                     value="{{ $product->id }}"
                                     {{ ($received->product_id ?? old('product_id')) == $product->id ? 'selected' : '' }}>
                                     {{ $product->name }}</option>
                             @endforeach
                         </select>
                         @error('product_id')
-                            <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                            <p class="text-red-500 text-l italic">{{ $message }}</p>
                         @enderror
                     </div>
                     <div class="mb-4">
                         <div class="flex">
-                            <div class="w-2/3 name">Product Name</div>
-                            <div class="w-1/3">Quantity</div>
+                            <div class="w-2/6 name">Product Name</div>
+                            <div class="w-1/6">Quantity</div>
+                            <div class="w-1/6">Price</div>
+                            <div class="w-1/6">Total</div>
                         </div>
                         <hr>
                         <div id="selectedProducts" class="mt-2">
                             @foreach ($details as $detail)
-                                <div class="flex mb-2 order-item" data-id="{{$detail->product_id}}">
-                                    <div class="w-2/3 name">{{$detail->product->name}}<input type="number" class="pid"
-                                            style="width:50px" hidden value="${productId}" min="1"></div>
-                                    <div class="w-1/3"><input type="number" class="pquantity" style="width:100px"
-                                            value="{{$detail->quantity}}" min="1"></div>
+                                <div class="flex mb-2 order-item" data-id="{{ $detail->product_id }}">
+                                    <div class="w-2/6 name">{{ $detail->product->name }}<input type="number" class="pid"
+                                            style="width:50px" hidden value="{{ $detail->product_id }}" min="1"></div>
+                                    <div class="w-1/6"><input type="number" class="pquantity" style="width:70px"
+                                            value="{{ $detail->quantity }}" min="1"></div>
+                                    <div class="w-1/6"><span class="price"
+                                            data-sprice="{{ $detail->price }}">{{ $detail->price }}</span></div>
+                                    <div class="w-1/6"><span class="total">{{ $detail->total }}</span></div>
                                     <button type="button"
                                         class="inline-block px-2 py-1 text-sm font-semibold leading-none text-white bg-red-500 rounded hover:bg-red-600 remove-product">Remove</button>
                                 </div>
@@ -52,19 +57,21 @@
                 </div>
                 <div class="w-1/3">
                     <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="status">
+                        <label class="block text-gray-700 text-l font-bold mb-2" for="status">
+                            Order Total : <span id="orderTotal">{{ $order->total ?? '' }}</span>
+                        </label>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-l font-bold mb-2" for="status">
                             Order Name
                         </label>
                         <input
                             class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                             id="status" name="status" type="text" value="{{ $order->status ?? '' }}"
                             placeholder="Order Name">
-                        @error('status')
-                            <p class="text-red-500 text-xs italic">{{ $message }}</p>
-                        @enderror
                     </div>
                     <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="orders_time">
+                        <label class="block text-gray-700 text-l font-bold mb-2" for="orders_time">
                             Order Date
                         </label>
                         @php
@@ -106,6 +113,7 @@
                 var selectedOption = $(this).find('option:selected');
                 var productId = selectedOption.val();
                 var productName = selectedOption.text();
+                var productPrice = selectedOption.data('price');
                 // Check if an item with the same id already exists
                 var existingItem = $('#selectedProducts').find(`.order-item[data-id="${productId}"]`);
                 if (existingItem.length > 0) {
@@ -120,28 +128,49 @@
                 } else {
                     var html = `
                 <div class="flex mb-2 order-item" data-id="${productId}">
-                                <div class="w-2/3 name">${productName}  <input type="number" class="pid" style="width:50px" hidden value="${productId}" min="1"></div>
-                                <div class="w-1/3"><input type="number" class="pquantity" style="width:100px"  value="1" min="1"></div>
+                                <div class="w-2/6 name">${productName}  <input type="number" class="pid" style="width:50px" hidden value="${productId}" min="1"></div>
+                                <div class="w-1/6"><input type="number" class="pquantity" style="width:70px"  value="1" min="1"></div>
+                                <div class="w-1/6"><span class="price" data-sprice="${productPrice}">${productPrice}</span></div>
+                                <div class="w-1/6"><span class="total">${productPrice}</span></div>
                                 <button type="button" class="inline-block px-2 py-1 text-sm font-semibold leading-none text-white bg-red-500 rounded hover:bg-red-600 remove-product">Remove</button>
-
                             </div>
                 `;
                     $('#selectedProducts').append(html);
                 }
+                orderTotal();
             });
+            $(document).on('input', '.pquantity', function() {
+                var price = $(this).closest('.order-item').find('.price').data('sprice');
+                var quantity = $(this).val();
+                var total = price * quantity;
+                $(this).closest('.order-item').find('.total').text(total);
+                orderTotal();
+            });
+
+            function orderTotal() {
+                var total = 0;
+                $('#selectedProducts .order-item').each(function() {
+                    total += parseInt($(this).find('.total').text());
+                });
+                $('#orderTotal').text(total);
+            };
             $('#submitOrder').click(function() {
                 var id = $('#orderId').val();
                 var status = $('#status').val();
                 var date = $('#orders_time').val();
+                var orderTotal = parseFloat($('#orderTotal').text());
                 var items = [];
                 var totalItems = 0;
                 $('#selectedProducts .order-item').each(function() {
                     var id = $(this).data('id');
                     var quantity = $(this).find('.pquantity').val();
+                    var price = $(this).find('.price').data('sprice');
+                    var total = price * quantity;
                     totalItems += parseInt(quantity);
                     items.push({
-                        pid: id,
+                        id: id,
                         quantity: quantity,
+                        price: price,
                     });
                 });
                 console.log(items);
@@ -156,17 +185,17 @@
                     url: '{{ url('orders') }}/' + id,
                     type: 'PUT',
                     data: {
-                        
                         items: items,
                         status: status,
                         date: date,
                         totalItems: totalItems,
+                        orderTotal: orderTotal,
                     },
                     success: function(response) {
                         if (response.success) {
                             console.log(response.data);
                             Swal.fire({
-                                icon:'success',
+                                icon: 'success',
                                 title: 'Success',
                                 text: 'Order Updated Successfully.',
                             });
@@ -174,6 +203,10 @@
                     },
                     error: function(error) {
                         // console.log(error.message);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Order Created Failure',
+                        });
                     }
                 });
             });

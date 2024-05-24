@@ -31,7 +31,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     {{-- <link rel="stylesheet" href="{{asset('build/assets/app-a724cf2c.css')}}"> --}}
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-
+{{-- <link rel="stylesheet" href="{{asset('vendor.css')}}"> --}}
     <!-- Styles -->
     @yield('styles')
     <style>
@@ -46,20 +46,18 @@
     @include('layouts.navigation')
     @yield('content')
     @include('flash')
+    {{-- <script src="{{asset('vendor.js')}}"></script> --}}
     {{-- <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script> --}}
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <!-- Select2 JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     {{-- dataTable --}}
     {{-- DataTable --}}
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
     <script
         src="https://cdn.datatables.net/v/bs5/jq-3.7.0/jszip-3.10.1/dt-1.13.8/af-2.6.0/b-2.4.2/b-colvis-2.4.2/b-html5-2.4.2/b-print-2.4.2/cr-1.7.0/date-1.5.1/fc-4.3.0/fh-3.4.0/r-2.5.0/rg-1.4.1/rr-1.4.1/sc-2.3.0/sb-1.6.0/sl-1.7.0/datatables.min.js">
     </script>
-
     {{-- DataTable --}}
     <!-- DataTable JS -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
@@ -70,7 +68,9 @@
     </script>
     <script>
         $(document).ready(function() {
-
+            $(document).on('click', 'input', function() {
+                $(this).select();
+            });
             var table = $('.dataTable').DataTable();
 
             new $.fn.dataTable.Buttons(table, {

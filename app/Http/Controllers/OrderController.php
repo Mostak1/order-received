@@ -80,6 +80,7 @@ class OrderController extends Controller
             // Update order details
             $order->quantity = $request->totalItems;
             $order->status = $request->status;
+            $order->total = $request->orderTotal;
             $order->orders_time = $request->date;
             $order->save();
 
@@ -90,8 +91,10 @@ class OrderController extends Controller
             foreach ($request->items as $item) {
                 $details = new OrderDetail();
                 $details->order_id = $order->id;
-                $details->product_id = $item['pid'];
+                $details->product_id = $item['id'];
                 $details->quantity = $item['quantity'];
+                $details->price = $item['price'];
+                $details->total = $item['quantity']* $item['price'];
                 $details->status = $request->status;
                 $details->orders_time = $request->date;
                 $details->save();

@@ -9,6 +9,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Received extends Model
 {
     use HasFactory,SoftDeletes;
-    protected $fillable=['quantity', 'status'];
+    protected $fillable=['quantity', 'status','total','received_time'];
    
 }

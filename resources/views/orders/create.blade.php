@@ -125,7 +125,6 @@
                                 <div class="w-1/6"><span class="price" data-sprice="${productPrice}">${productPrice}</span></div>
                                 <div class="w-1/6"><span class="total">${productPrice}</span></div>
                                 <button type="button" class="inline-block px-2 py-1 text-sm font-semibold leading-none text-white bg-red-500 rounded hover:bg-red-600 remove-product">Remove</button>
-
                             </div>
                 `;
                     $('#selectedProducts').append(html);
@@ -145,7 +144,7 @@
                     total += parseInt($(this).find('.total').text());
                 });
                 $('#orderTotal').text(total);
-            }
+            };
             $('#submitOrder').click(function() {
                 var status = $('#status').val();
                 var date = $('#orders_time').val();

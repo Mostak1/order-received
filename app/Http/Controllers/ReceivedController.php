@@ -31,19 +31,20 @@ class ReceivedController extends Controller
             $order = new Received();
             $order->quantity = $request->totalItems;
             $order->status = $request->status;
+            $order->total = $request->orderTotal;
             $order->received_time = $request->date;
             $order->save();
-
             foreach ($request->items as $item) {
                 $details = new ReceivedDetail();
                 $details->received_id = $order->id;
                 $details->product_id = $item['id'];
                 $details->quantity = $item['quantity'];
+                $details->price = $item['price'];
+                $details->total = $item['quantity']*$item['price'];
                 $details->status = $request->status;
                 $details->received_time = $request->date;
                 $details->save();
             }
-
             DB::commit();
             return response()->json(['success' => true, 'data' => $order]);
         } catch (Exception $e) {
@@ -74,27 +75,26 @@ class ReceivedController extends Controller
         try {
             // Find the order
             $received = Received::findOrFail($id);
-
             // Update received details
             $received->quantity = $request->totalItems;
             $received->status = $request->status;
+            $received->total = $request->orderTotal;
             $received->received_time = $request->date;
             $received->save();
-
             // Clear existing received details
             ReceivedDetail::where('received_id', $id)->delete();
-
             // Add updated received details
             foreach ($request->items as $item) {
                 $details = new ReceivedDetail();
                 $details->received_id = $received->id;
                 $details->product_id = $item['pid'];
                 $details->quantity = $item['quantity'];
+                $details->price = $item['price'];
+                $details->total = $item['quantity']* $item['price'];
                 $details->status = $request->status;
                 $details->received_time = $request->date;
                 $details->save();
             }
-
             DB::commit();
             return response()->json(['success' => true, 'data' => $received]);
         } catch (Exception $e) {
