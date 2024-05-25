@@ -149,12 +149,12 @@
                 $(this).closest('.order-item').find('.total').text(total);
                 orderTotal();
             });
-            function orderTotal() {
+            function orderTotal(){
                 var total = 0;
                 $('#selectedProducts .order-item').each(function() {
-                    total += parseInt($(this).find('.total').text());
+                    total += parseFloat($(this).find('.total').text());
                 });
-                $('#orderTotal').text(total);
+                $('#orderTotal').text(total.toFixed(2));
             };
             $('#submitOrder').click(function() {
                 var id = $('#orderId').val();

@@ -7,7 +7,7 @@
 
     <div class="container mx-auto mt-5">
         <div class="w-3/4 bg-white shadow-md rounded mx-auto px-8 pt-6 pb-8 mb-4">
-            <span class="text-2xl font-bold mb-4">Order Details</span>
+            <span class="text-2xl font-bold mb-4">Received Details</span>
             <a href="{{ route('receiveds.edit', $received->id) }}"
                 class="bg-yellow-500  hover:bg-yellow-700 mx-1 text-white font-bold py-1 px-2 rounded"><i
                     class="fa-regular fa-pen-to-square"></i></a>

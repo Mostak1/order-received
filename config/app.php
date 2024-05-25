@@ -38,6 +38,11 @@ return [
     | application. If disabled, a simple generic error page is shown.
     |
     */
+    // 'providers' => [
+    //     // ...
+    //     Yajra\DataTables\DataTablesServiceProvider::class,
+    //     Yajra\DataTables\ButtonsServiceProvider::class,
+    // ],
 
     'debug' => (bool) env('APP_DEBUG', false),
 

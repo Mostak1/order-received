@@ -116,7 +116,7 @@
                                 <div class="w-2/6 name">${productName}  <input type="number" class="pid" style="width:50px" hidden value="${productId}" min="1"></div>
                                 <div class="w-1/6"><input type="number" class="pquantity" style="width:70px"  value="1" min="1"></div>
                                 <div class="w-1/6"><span class="price" data-sprice="${productPrice}">${productPrice}</span></div>
-                                <div class="w-1/6"><span class="total">${productPrice}</span></div>
+                                <div class="w-1/6"><span class="total" >${productPrice}</span> </div>
                                 <button type="button" class="inline-block px-2 py-1 text-sm font-semibold leading-none text-white bg-red-500 rounded hover:bg-red-600 remove-product">Remove</button>
                             </div>
                 `;
@@ -134,9 +134,9 @@
             function orderTotal(){
                 var total = 0;
                 $('#selectedProducts .order-item').each(function() {
-                    total += parseInt($(this).find('.total').text());
+                    total += parseFloat($(this).find('.total').text());
                 });
-                $('#orderTotal').text(total);
+                $('#orderTotal').text(total.toFixed(2));
             };
             $('#submitOrder').click(function() {
                 var status = $('#status').val();

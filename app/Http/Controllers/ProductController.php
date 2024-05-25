@@ -14,34 +14,11 @@ class ProductController extends Controller
     {
         $orders = Order::get();
         $receiveds = Received::get();
-        $query = Product::withCount(['orders', 'received'])
-            ->where(function ($query) {
-                $query->has('orders')
-                    ->orHas('received');
-            });
-
-        // Apply filter based on order IDs
-        if ($request->has('order_ids')) {
-            $orderIds =  $request->input('order_ids');
-            $query->whereHas('orders', function ($query) use ($orderIds) {
-                $query->whereIn('order_id', $orderIds);
-            });
-        }
-
-        // Apply filter based on received IDs
-        if ($request->has('received_ids')) {
-            $receivedIds = $request->input('received_ids');
-            $query->whereHas('received', function ($query) use ($receivedIds) {
-                $query->whereIn('received_id', $receivedIds);
-            });
-        }
-        $products = $query->get();
+       
         if ($request->ajax()) {
-            $query = Product::withCount(['orders', 'received']);
-
+            $query = Product::withCount(['orders', 'received'])->with(['orders', 'received']);
             // Apply filter based on order IDs
             if ($request->has('filterProduct') && $request->filterProduct == 1) {
-
                 $query->where(function ($query) {
                     $query->has('orders')
                         ->orHas('received');
@@ -54,7 +31,6 @@ class ProductController extends Controller
                     $query->whereIn('order_id', $orderIds);
                 });
             }
-
             // Apply filter based on received IDs
             if ($request->has('received_ids')) {
                 $receivedIds = $request->input('received_ids');
@@ -62,16 +38,24 @@ class ProductController extends Controller
                     $query->whereIn('received_id', $receivedIds);
                 });
             }
-
+            $products = $query->get();
+            $orderTotal = 0;
+            foreach ($products as $product) {
+                foreach ($product->orders as $order) {
+                    $orderTotal += $order->total;
+                }
+            }
             return DataTables::of($query)
                 ->addColumn('received_list', function ($product) {
                     $html = '<ul>';
                     foreach ($product->received as $item) {
                         $html .= '<li class="flex mb-1">';
-                        $html .= '<span class="text-yellow-600">' . date('Y-m-d', strtotime($item->orders_time)) . '</span>: ';
+                        $html .= '<span class="text-yellow-600">' . date('d M y', strtotime($item->orders_time)) . '</span>: ';
                         $html .= '<a href="' . route('receiveds.show', $item->received_id) . '"> <span class="text-green-600">' . $item->status . '</span></a> = ';
                         $html .= '<span>' . $item->quantity . '</span>';
-                        $html .= '</li>';
+                        $html .= '<span> :Total= </span>';
+                        $html .= '<span class="receivedTotal"> '. $item->total . '</span>';
+                        $html .= '||</li><hr/>';
                     }
                     $html .= '</ul>';
                     return $html;
@@ -80,16 +64,21 @@ class ProductController extends Controller
                     $html = '<ul>';
                     foreach ($product->orders as $item) {
                         $html .= '<li class="flex mb-1">';
-                        $html .= '<span class="text-yellow-600">' . date('Y-m-d', strtotime($item->orders_time)) . '</span>: ';
+                        $html .= '<span class="text-yellow-600">' . date('d M y', strtotime($item->orders_time)) . '</span>: ';
                         $html .= '<a href="' . route('orders.show', $item->order_id) . '"> <span class="text-green-600">' . $item->status . '</span></a> = ';
                         $html .= '<span>' . $item->quantity . '</span>';
-                        $html .= '</li>';
+                        $html .= '<span> :Total= </span>';
+                        $html .= '<span class="orderTotal"> '. $item->total . '</span>';
+                        $html .= '||</li><hr/>';
                     }
                     $html .= '</ul>';
                     return $html;
                 })
                 ->addColumn('remaining_orders', function ($product) {
                     return $product->orders_count - $product->received_count;
+                })
+                ->addColumn('orderTotal', function () use ($orderTotal) {
+                    return $orderTotal;
                 })
                 ->addColumn('action', function ($product) {
                     return '<a href="' . route('products.show', $product->id) . '"
@@ -103,11 +92,11 @@ class ProductController extends Controller
                                     onclick="return confirm(\'Are you sure you want to delete this product?\')">Delete</button>
                             </form>';
                 })
-                ->rawColumns(['action', 'orders_list','received_list'])
+                ->rawColumns(['action','orderTotal', 'orders_list', 'received_list'])
                 ->make(true);
         }
 
-        return view('products.index', compact('orders', 'receiveds', 'products'));
+        return view('products.index', compact('orders','receiveds'));
     }
     // public function index()
     // {

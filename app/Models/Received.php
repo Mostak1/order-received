@@ -10,5 +10,7 @@ class Received extends Model
 {
     use HasFactory,SoftDeletes;
     protected $fillable=['quantity', 'status','total','received_time'];
-   
+   public function receivedDetails(){
+    return $this->hasMany(ReceivedDetail::class,'received_id');
+   }
 }

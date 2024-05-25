@@ -41,7 +41,7 @@ class OrderController extends Controller
                 $details->product_id = $item['id'];
                 $details->quantity = $item['quantity'];
                 $details->price = $item['price'];
-                $details->total = $item['quantity']* $item['price'];
+                $details->total = $item['quantity'] * $item['price'];
                 $details->status = $request->status;
                 $details->orders_time = $request->date;
                 $details->save();
@@ -94,7 +94,7 @@ class OrderController extends Controller
                 $details->product_id = $item['id'];
                 $details->quantity = $item['quantity'];
                 $details->price = $item['price'];
-                $details->total = $item['quantity']* $item['price'];
+                $details->total = $item['quantity'] * $item['price'];
                 $details->status = $request->status;
                 $details->orders_time = $request->date;
                 $details->save();
@@ -148,9 +148,23 @@ class OrderController extends Controller
     // Remove the specified order from the database
     public function destroy(Order $order)
     {
-        $order->delete();
-
-        return redirect()->route('orders.index')->with('success', 'Order deleted successfully.');
+        // Wrap the delete operation in a transaction to ensure atomicity
+        DB::beginTransaction();
+        try {
+            // Delete associated order details
+            OrderDetail::where('order_id', $order->id)->delete();
+    
+            // Delete the order itself
+            $order->delete();
+    
+            DB::commit();
+            return redirect()->route('orders.index')->with('success', 'Order deleted successfully.');
+        } catch (\Exception $e) {
+            DB::rollback();
+            Log::error('Order deletion failed: ' . $e->getMessage()); // Log the error
+            return redirect()->route('orders.index')->with('error', 'Order deletion failed. Please try again.');
+        }
     }
+    
     // index,create,store,show,edit,update,delete, methode
 }

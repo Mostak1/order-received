@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bed9756fe387333d0bec909cf9182494",
+    "content-hash": "316c1b9e81f9fa92041371e161fb1251",
     "packages": [
         {
             "name": "brick/math",
@@ -5691,6 +5691,170 @@
                 "source": "https://github.com/webmozarts/assert/tree/1.11.0"
             },
             "time": "2022-06-03T18:03:27+00:00"
+        },
+        {
+            "name": "yajra/laravel-datatables-buttons",
+            "version": "v11.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/yajra/laravel-datatables-buttons.git",
+                "reference": "d197c56c69342c01b4848fead2b560f28af153e4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/yajra/laravel-datatables-buttons/zipball/d197c56c69342c01b4848fead2b560f28af153e4",
+                "reference": "d197c56c69342c01b4848fead2b560f28af153e4",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/console": "^11",
+                "php": "^8.2",
+                "yajra/laravel-datatables-html": "^11",
+                "yajra/laravel-datatables-oracle": "^11"
+            },
+            "require-dev": {
+                "larastan/larastan": "^2.9.2",
+                "laravel/pint": "^1.14",
+                "maatwebsite/excel": "^3.1.55",
+                "orchestra/testbench": "^9",
+                "rap2hpoutre/fast-excel": "^5.4",
+                "rector/rector": "^1.0.2"
+            },
+            "suggest": {
+                "barryvdh/laravel-snappy": "Allows exporting of dataTable to PDF using the print view.",
+                "dompdf/dompdf": "Allows exporting of dataTable to PDF using the DomPDF.",
+                "maatwebsite/excel": "Exporting of dataTables (excel, csv and PDF) using maatwebsite package.",
+                "rap2hpoutre/fast-excel": "Faster exporting of dataTables using fast-excel package.",
+                "yajra/laravel-datatables-export": "Exporting of dataTables (excel, csv and PDF) via livewire and queue worker."
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "11.0-dev"
+                },
+                "laravel": {
+                    "providers": [
+                        "Yajra\\DataTables\\ButtonsServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Yajra\\DataTables\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Arjay Angeles",
+                    "email": "aqangeles@gmail.com"
+                }
+            ],
+            "description": "Laravel DataTables Buttons Plugin.",
+            "keywords": [
+                "buttons",
+                "datatables",
+                "jquery",
+                "laravel"
+            ],
+            "support": {
+                "issues": "https://github.com/yajra/laravel-datatables-buttons/issues",
+                "source": "https://github.com/yajra/laravel-datatables-buttons/tree/v11.0.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/sponsors/yajra",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-03-14T03:56:56+00:00"
+        },
+        {
+            "name": "yajra/laravel-datatables-html",
+            "version": "v11.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/yajra/laravel-datatables-html.git",
+                "reference": "57ef5e8452db5dbeb226ba9581fb998ec90b6a86"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/yajra/laravel-datatables-html/zipball/57ef5e8452db5dbeb226ba9581fb998ec90b6a86",
+                "reference": "57ef5e8452db5dbeb226ba9581fb998ec90b6a86",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "php": "^8.2",
+                "yajra/laravel-datatables-oracle": "^11.0"
+            },
+            "require-dev": {
+                "larastan/larastan": "^2.9.1",
+                "laravel/pint": "^1.14",
+                "livewire/livewire": "^3.4",
+                "orchestra/testbench": "^9",
+                "rector/rector": "^1.0"
+            },
+            "suggest": {
+                "laravel/livewire": "Required for Livewire layout support."
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "11.0-dev"
+                },
+                "laravel": {
+                    "providers": [
+                        "Yajra\\DataTables\\HtmlServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Yajra\\DataTables\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Arjay Angeles",
+                    "email": "aqangeles@gmail.com"
+                }
+            ],
+            "description": "Laravel DataTables HTML builder plugin",
+            "keywords": [
+                "JS",
+                "datatables",
+                "html",
+                "jquery",
+                "laravel",
+                "yajra"
+            ],
+            "support": {
+                "issues": "https://github.com/yajra/laravel-datatables-html/issues",
+                "source": "https://github.com/yajra/laravel-datatables-html/tree/v11.3.0"
+            },
+            "funding": [
+                {
+                    "url": "https://www.paypal.me/yajra",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/yajra",
+                    "type": "github"
+                },
+                {
+                    "url": "https://www.patreon.com/yajra",
+                    "type": "patreon"
+                }
+            ],
+            "time": "2024-05-18T05:24:24+00:00"
         },
         {
             "name": "yajra/laravel-datatables-oracle",

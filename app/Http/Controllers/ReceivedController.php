@@ -106,7 +106,21 @@ class ReceivedController extends Controller
     // Remove the specified received item from the database
     public function destroy(Received $received)
     {
-        $received->delete();
-        return redirect()->back()->with('success', 'Received item deleted successfully.');
+         // Wrap the delete operation in a transaction to ensure atomicity
+         DB::beginTransaction();
+         try {
+             // Delete associated order details
+             ReceivedDetail::where('received_id', $received->id)->delete();
+     
+             // Delete the order itself
+             $received->delete();
+     
+             DB::commit();
+             return redirect()->route('receiveds.index')->with('success', 'Received Order deleted successfully.');
+         } catch (\Exception $e) {
+             DB::rollback();
+             Log::error('receiveds deletion failed: ' . $e->getMessage()); // Log the error
+             return redirect()->route('receiveds.index')->with('error', 'Received Order deletion failed. Please try again.');
+         }
     }
 }
