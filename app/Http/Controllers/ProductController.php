@@ -14,7 +14,8 @@ class ProductController extends Controller
     {
         $orders = Order::get();
         $receiveds = Received::get();
-       
+        $orderTotal = 0;
+        $receivedTotal = 0;
         if ($request->ajax()) {
             $query = Product::withCount(['orders', 'received'])->with(['orders', 'received']);
             // Apply filter based on order IDs
@@ -39,37 +40,81 @@ class ProductController extends Controller
                 });
             }
             $products = $query->get();
-            $orderTotal = 0;
-            foreach ($products as $product) {
-                foreach ($product->orders as $order) {
-                    $orderTotal += $order->total;
+            // $orderTotal = 0;
+            $orderIdArray =  $request->input('order_ids', []);
+            $receivedArray = $request->input('received_ids', []);
+            if ($request->has('order_ids')) {
+                foreach ($products as $product) {
+                    foreach ($product->orders as $order) {
+                        if (in_array($order->order_id, $orderIdArray)) {
+                            $orderTotal += $order->total;
+                        }
+                    }
+                }
+            } else {
+                foreach ($products as $product) {
+                    foreach ($product->orders as $order) {
+                        $orderTotal += $order->total;
+                    }
                 }
             }
-            return DataTables::of($query)
-                ->addColumn('received_list', function ($product) {
+            if ($request->has('received_ids')) {
+                foreach ($products as $product) {
+                    foreach ($product->received as $item) {
+                        if (in_array($item->received_id, $receivedArray)) {
+                            $receivedTotal += $item->total;
+                        }
+                    }
+                }
+            } else {
+                foreach ($products as $product) {
+                    foreach ($product->received as $item) {
+                        $receivedTotal += $item->total;
+                    }
+                }
+            }
+            $dataTable = DataTables::of($query)
+                ->addColumn('received_list', function ($product) use ($receivedArray) {
                     $html = '<ul>';
                     foreach ($product->received as $item) {
-                        $html .= '<li class="flex mb-1">';
-                        $html .= '<span class="text-yellow-600">' . date('d M y', strtotime($item->orders_time)) . '</span>: ';
-                        $html .= '<a href="' . route('receiveds.show', $item->received_id) . '"> <span class="text-green-600">' . $item->status . '</span></a> = ';
-                        $html .= '<span>' . $item->quantity . '</span>';
-                        $html .= '<span> :Total= </span>';
-                        $html .= '<span class="receivedTotal"> '. $item->total . '</span>';
-                        $html .= '||</li><hr/>';
+                        if ($receivedArray) {
+                            if (in_array($item->received_id, $receivedArray)) {
+                                $html .= '<li class="flex mb-1">';
+                                $html .= '<span class="text-yellow-600">' . date('d M y', strtotime($item->received_time)) . '</span>: ';
+                                $html .= '<a href="' . route('receiveds.show', $item->received_id) . '"> <span class="text-green-600">' . $item->status . '</span></a> = ';
+                                $html .= '<span>' . $item->quantity . '</span>';
+                                $html .= '||</li><hr/>';
+                            }
+                        } else {
+                            $html .= '<li class="flex mb-1">';
+                            $html .= '<span class="text-yellow-600">' . date('d M y', strtotime($item->orders_time)) . '</span>: ';
+                            $html .= '<a href="' . route('receiveds.show', $item->received_id) . '"> <span class="text-green-600">' . $item->status . '</span></a> = ';
+                            $html .= '<span>' . $item->quantity . '</span>';
+                            $html .= '||</li><hr/>';
+                        }
                     }
+
                     $html .= '</ul>';
                     return $html;
                 })
-                ->addColumn('orders_list', function ($product) {
+                ->addColumn('orders_list', function ($product) use ($orderIdArray) {
                     $html = '<ul>';
                     foreach ($product->orders as $item) {
-                        $html .= '<li class="flex mb-1">';
-                        $html .= '<span class="text-yellow-600">' . date('d M y', strtotime($item->orders_time)) . '</span>: ';
-                        $html .= '<a href="' . route('orders.show', $item->order_id) . '"> <span class="text-green-600">' . $item->status . '</span></a> = ';
-                        $html .= '<span>' . $item->quantity . '</span>';
-                        $html .= '<span> :Total= </span>';
-                        $html .= '<span class="orderTotal"> '. $item->total . '</span>';
-                        $html .= '||</li><hr/>';
+                        if ($orderIdArray) {
+                            if (in_array($item->order_id, $orderIdArray)) {
+                                $html .= '<li class="flex mb-1">';
+                                $html .= '<span class="text-yellow-600">' . date('d M y', strtotime($item->orders_time)) . '</span>: ';
+                                $html .= '<a href="' . route('orders.show', $item->order_id) . '"> <span class="text-green-600">' . $item->status . '</span></a> = ';
+                                $html .= '<span>' . $item->quantity . '</span>';
+                                $html .= '||</li><hr/>';
+                            }
+                        } else {
+                            $html .= '<li class="flex mb-1">';
+                            $html .= '<span class="text-yellow-600">' . date('d M y', strtotime($item->orders_time)) . '</span>: ';
+                            $html .= '<a href="' . route('orders.show', $item->order_id) . '"> <span class="text-green-600">' . $item->status . '</span></a> = ';
+                            $html .= '<span>' . $item->quantity . '</span>';
+                            $html .= '||</li><hr/>';
+                        }
                     }
                     $html .= '</ul>';
                     return $html;
@@ -77,8 +122,33 @@ class ProductController extends Controller
                 ->addColumn('remaining_orders', function ($product) {
                     return $product->orders_count - $product->received_count;
                 })
-                ->addColumn('orderTotal', function () use ($orderTotal) {
+                ->addColumn('orderTotal', function ($product) use ($orderIdArray) {
+                    $orderTotal1 = 0;
+                    foreach ($product->orders as $item) {
+                        if ($orderIdArray) {
+                            if (in_array($item->order_id, $orderIdArray)) {
+                                $orderTotal1 += $item->total;
+                            }
+                        } else {
+                            $orderTotal1 += $item->total;
+                        }
+                    }
+                    $orderTotal = number_format($orderTotal1, 2);
                     return $orderTotal;
+                })
+                ->addColumn('receivedTotal', function ($product) use ($receivedArray){
+                    $receivedTotal1 = 0;
+                    foreach ($product->received as $item) {
+                        if ($receivedArray) {
+                            if (in_array($item->received_id, $receivedArray)) {
+                                $receivedTotal1 += $item->total;
+                            }
+                        } else {
+                            $receivedTotal1 += $item->total;
+                        }
+                    }
+                    $receivedTotal = number_format($receivedTotal1, 2);
+                    return $receivedTotal;
                 })
                 ->addColumn('action', function ($product) {
                     return '<a href="' . route('products.show', $product->id) . '"
@@ -92,11 +162,26 @@ class ProductController extends Controller
                                     onclick="return confirm(\'Are you sure you want to delete this product?\')">Delete</button>
                             </form>';
                 })
-                ->rawColumns(['action','orderTotal', 'orders_list', 'received_list'])
+                ->rawColumns(['action','receivedTotal', 'orderTotal', 'orders_list', 'received_list'])
                 ->make(true);
+            return response()->json([
+                'data' => $dataTable->getData(),
+                'orderTotal' => $orderTotal,
+                'receivedTotal' => $receivedTotal,
+            ]);
+        } else {
+            // Calculate orderTotal when the request is not AJAX
+            $products = Product::with(['orders'])->get();
+            foreach ($products as $product) {
+                foreach ($product->orders as $order) {
+                    $orderTotal += $order->total;
+                }
+            }
+
+            return view('products.index', compact('orders', 'receiveds', 'orderTotal'));
         }
 
-        return view('products.index', compact('orders','receiveds'));
+        return view('products.index', compact('orders', 'receiveds'));
     }
     // public function index()
     // {

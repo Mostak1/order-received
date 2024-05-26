@@ -151,12 +151,8 @@ class OrderController extends Controller
         // Wrap the delete operation in a transaction to ensure atomicity
         DB::beginTransaction();
         try {
-            // Delete associated order details
             OrderDetail::where('order_id', $order->id)->delete();
-    
-            // Delete the order itself
             $order->delete();
-    
             DB::commit();
             return redirect()->route('orders.index')->with('success', 'Order deleted successfully.');
         } catch (\Exception $e) {

@@ -111,6 +111,7 @@
             $('.select2').select2();
             $(document).on('click', '.remove-product', function() {
                 $(this).closest('.order-item').remove();
+                orderTotal();
             });
             $('#product_id').change(function() {
                 var selectedOption = $(this).find('option:selected');
@@ -146,7 +147,7 @@
                 var price = $(this).closest('.order-item').find('.price').data('sprice');
                 var quantity = $(this).val();
                 var total = price * quantity;
-                $(this).closest('.order-item').find('.total').text(total);
+                $(this).closest('.order-item').find('.total').text(total.toFixed(2));
                 orderTotal();
             });
             function orderTotal(){

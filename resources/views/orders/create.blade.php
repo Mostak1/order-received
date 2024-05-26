@@ -19,8 +19,8 @@
                         <select name="product_id" id="product_id"
                             class="select2 shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                             @foreach ($products as $product)
-                                <option data-pname="{{ $product->name }}" data-price="{{ $product->price }}" data-id="{{ $product->id }}"
-                                    value="{{ $product->id }}"
+                                <option data-pname="{{ $product->name }}" data-price="{{ $product->price }}"
+                                    data-id="{{ $product->id }}" value="{{ $product->id }}"
                                     {{ ($received->product_id ?? old('product_id')) == $product->id ? 'selected' : '' }}>
                                     {{ $product->name }}</option>
                             @endforeach
@@ -47,8 +47,8 @@
                         <label class="block text-gray-700 text-l font-bold mb-2" for="status">
                             Order Total : <span id="orderTotal"></span>
                         </label>
-                   
-                      
+
+
                     </div>
                     <div class="mb-4">
                         <label class="block text-gray-700 text-l font-bold mb-2" for="status">
@@ -96,10 +96,37 @@
 @endsection
 @section('scripts')
     <script>
+       
         $(document).ready(function() {
+            let leavePage = false;
+            $('a').click(function(event) {
+                event.preventDefault(); // Prevent the default action of the link
+                const href = $(this).attr('href');
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You clicked a link!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, go ahead!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Proceed with the navigation
+                        leavePage = true;
+                        window.location.href = href;
+                    } else {
+                        // Stay on the current page
+                        console.log("Cancelled");
+                    }
+                });
+            });
+
             $('.select2').select2();
             $(document).on('click', '.remove-product', function() {
                 $(this).closest('.order-item').remove();
+                orderTotal();
             });
             $('#product_id').change(function() {
                 var selectedOption = $(this).find('option:selected');
@@ -131,14 +158,15 @@
                 }
                 orderTotal();
             });
-            $(document).on('input', '.pquantity', function(){
+            $(document).on('input', '.pquantity', function() {
                 var price = $(this).closest('.order-item').find('.price').data('sprice');
                 var quantity = $(this).val();
                 var total = price * quantity;
-                $(this).closest('.order-item').find('.total').text(total);
+                $(this).closest('.order-item').find('.total').text(total.toFixed(2));
                 orderTotal();
             })
-            function orderTotal(){
+
+            function orderTotal() {
                 var total = 0;
                 $('#selectedProducts .order-item').each(function() {
                     total += parseFloat($(this).find('.total').text());
@@ -148,7 +176,7 @@
             $('#submitOrder').click(function() {
                 var status = $('#status').val();
                 var date = $('#orders_time').val();
-                var orderTotal =parseFloat($('#orderTotal').text());
+                var orderTotal = parseFloat($('#orderTotal').text());
                 var items = [];
                 var totalItems = 0;
                 $('#selectedProducts .order-item').each(function() {
@@ -186,9 +214,10 @@
                         if (response.success) {
                             console.log(response.data);
                             Swal.fire({
-                                icon:'success',
+                                icon: 'success',
                                 title: 'Order Created Successfully',
                             });
+                            window.location.href = "{{ url('orders') }}";
                         }
                     },
                     error: function(error) {

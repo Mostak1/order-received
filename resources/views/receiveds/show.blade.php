@@ -37,6 +37,30 @@
                             @endforeach
                         </div>
                     </div>
+                    <table class="min-w-full bg-white dataTable" id="dataTable">
+                        <thead class="bg-gray-800 text-white">
+                            <tr>
+                                <th class="tablebtn" colspan="4"></th>
+                                
+                            </tr>
+                            <tr>
+                                <th class="w-2/6 name">Product Name</th>
+                                <th class="w-1/6">Quantity</th>
+                                <th class="w-1/6">Price</th>
+                                <th class="w-1/6">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-700">
+                            @foreach ($details as $order)
+                                <tr>
+                                    <td class="border px-4 py-2">{{ $detail->product->name }}</td>
+                                    <td class="border px-4 py-2">{{ $detail->quantity }}</td>
+                                    <td class="border px-4 py-2">{{ $detail->price }}</td>
+                                    <td class="border px-4 py-2">{{ $detail->total }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
                 <div class="w-1/3">
                     <div class="mb-4">

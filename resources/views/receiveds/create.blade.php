@@ -89,9 +89,34 @@
 @section('scripts')
     <script>
         $(document).ready(function() {
+            let leavePage = false;
+            $('a').click(function(event) {
+                event.preventDefault(); // Prevent the default action of the link
+                const href = $(this).attr('href');
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You clicked a link!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, go ahead!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Proceed with the navigation
+                        leavePage = true;
+                        window.location.href = href;
+                    } else {
+                        // Stay on the current page
+                        console.log("Cancelled");
+                    }
+                });
+            });
             $('.select2').select2();
             $(document).on('click', '.remove-product', function() {
                 $(this).closest('.order-item').remove();
+                orderTotal();
             });
            
             $('#product_id').change(function() {
@@ -128,7 +153,7 @@
                 var price = $(this).closest('.order-item').find('.price').data('sprice');
                 var quantity = $(this).val();
                 var total = price * quantity;
-                $(this).closest('.order-item').find('.total').text(total);
+                $(this).closest('.order-item').find('.total').text(total.toFixed(2));
                 orderTotal();
             })
             function orderTotal(){
@@ -183,6 +208,7 @@
                                 title: 'Order Received Successfully',
                                 text: `Order Received`,
                             });
+                            location.reload();
                         }
                     },
                     error: function(error) {

@@ -40,35 +40,35 @@
         <div class="mb-4">
             <a href="{{ route('products.create') }}"
                 class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Create New Product</a>
-            <div class="">Total Order: <span id="orderTotal"></span></div>
-            <div class="">Total Received: <span id="receivedTotal"></span></div>
+            <div class="my-3 text-xl">Total Order: <span id="orderTotal"></span></div>
+            <div class="text-xl">Total Received: <span id="receivedTotal"></span></div>
         </div>
         <div class=" bg-white mx-auto">
             <table class="min-w-full bg-white" id="product_table">
                 <thead class="bg-gray-800 text-white">
                     <tr>
-                        <th class="tablebtn" colspan="7"></th>
-
+                        <th class="tablebtn" colspan="9"></th>
                     </tr>
                     <tr>
                         <th class=" py-2">SL</th>
                         <th class="w-1/6 py-2">Name</th>
                         <th class=" py-2">Price</th>
                         <th class="w-2/6 py-2">Orders</th>
+                        <th class=" py-2">orderTotal</th>
                         <th class="w-2/6 py-2">Received</th>
+                        <th class=" py-2">receivedTotal</th>
                         <th class=" py-2">Remaining Orders</th>
                         <th class="w-1/6 py-2">Actions</th>
                     </tr>
                 </thead>
             </table>
         </div>
-
     </div>
 @endsection
 @section('scripts')
     <script>
         $(document).ready(function() {
-            
+
             var table = $('#product_table').DataTable({
                 processing: true,
                 serverSide: true,
@@ -85,6 +85,13 @@
                             .val(); // Include selected received IDs in request
                         d.filterProduct = $('#filterProduct').is(':checked') ? 1 :
                             0; // Include selected
+                    },
+                    dataSrc: function(response) {
+                        // Update the order total display
+                        $('#orderTotal').text(response.orderTotal.toFixed(2));
+                        $('#receivedTotal').text(response.receivedTotal.toFixed(2));
+                        console.log(response.data.data);
+                        return response.data.data; // Return the data portion for DataTables
                     }
                 },
                 columns: [{
@@ -104,8 +111,16 @@
                         name: 'orders_list'
                     },
                     {
+                        data: 'orderTotal',
+                        name: 'orderTotal'
+                    },
+                    {
                         data: 'received_list',
                         name: 'received_list'
+                    },
+                    {
+                        data: 'receivedTotal',
+                        name: 'receivedTotal'
                     },
                     {
                         data: 'remaining_orders',
@@ -132,8 +147,8 @@
             });
             $('#filterApply').click(function() {
                 table.ajax.reload();
-                orderTotal();
-                receivedTotal();
+                
+                
             })
             new $.fn.dataTable.Buttons(table, {
                 buttons: [
@@ -145,28 +160,6 @@
             $('.tablebtn .btn').removeClass('btn-secondary').addClass(
                 'text-gray-900 bg-white border border-gray-600 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700'
             );
-
-            function orderTotal() {
-                var orderTotal = 0;
-                $('.orderTotal').each(function() {
-                    orderTotal += parseFloat($(this).text());
-                });
-                orderTotal = orderTotal.toFixed(2);
-                $('#orderTotal').text(orderTotal);
-            }
-            function receivedTotal() {
-                var receivedTotal = 0;
-                $('.receivedTotal').each(function() {
-                    receivedTotal += parseFloat($(this).text());
-                });
-                receivedTotal = receivedTotal.toFixed(2);
-                $('#receivedTotal').text(receivedTotal);
-            }
-            $(document).on('each', '.orderTotal', function(){
-                orderTotal();
-            })
-            orderTotal();
-            receivedTotal();
         });
     </script>
 @endsection
