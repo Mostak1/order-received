@@ -6,6 +6,26 @@
                 display: none;
             }
         }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .bordered-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .bordered-table th,
+        .bordered-table td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .bordered-table th {
+        }
     </style>
 @endsection
 @section('content')
@@ -44,7 +64,7 @@
             <div class="text-xl">Total Received: <span id="receivedTotal"></span></div>
         </div>
         <div class=" bg-white mx-auto">
-            <table class="min-w-full bg-white" id="product_table">
+            <table class="min-w-full bg-white bordered-table" id="product_table">
                 <thead class="bg-gray-800 text-white">
                     <tr>
                         <th class="tablebtn" colspan="9"></th>
@@ -147,8 +167,8 @@
             });
             $('#filterApply').click(function() {
                 table.ajax.reload();
-                
-                
+
+
             })
             new $.fn.dataTable.Buttons(table, {
                 buttons: [

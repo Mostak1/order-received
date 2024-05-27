@@ -19,11 +19,19 @@ class Product extends Model
         return $this->hasMany(OrderDetail::class);
     }
 
-    public function received()
+    public function receiveds()
     {
         return $this->hasMany(ReceivedDetail::class);
     }
-
+    public function notZero()
+    {
+        $pid = $this->orders()->sum('quantity') - $this->receiveds()->sum('quantity');
+        if ($pid !== 0) {
+            return $this;
+        } else {
+            return 0;
+        }
+    }
     public function getTotalOrderedAttribute()
     {
         return $this->orders()->sum('quantity');
@@ -31,7 +39,7 @@ class Product extends Model
 
     public function getTotalReceivedAttribute()
     {
-        return $this->received()->sum('quantity');
+        return $this->receiveds()->sum('quantity');
     }
 
     public function getRemainingAttribute()
